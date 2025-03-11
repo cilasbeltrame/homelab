@@ -1,24 +1,46 @@
-FROM ubuntu:24.04
+FROM alpine:3.19
 
 ENV GH_RUNNER_VERSION=2.322.0
 
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
+# Install dependencies
+RUN apk add --no-cache \
+    ca-certificates \
     curl \
     tar \
-    && add-apt-repository ppa:dotnet/backports \
-    && apt-get update \
-    && apt-get install -y dotnet-sdk-6.0
+    icu-libs \
+    krb5-libs \
+    libgcc \
+    libintl \
+    libssl3 \
+    libstdc++ \
+    zlib \
+    bash \
+    wget
 
+# Install .NET Runtime
+RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh \
+    && chmod +x ./dotnet-install.sh \
+    && ./dotnet-install.sh --runtime dotnet --channel 6.0 --install-dir /usr/share/dotnet \
+    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
+    && rm dotnet-install.sh
+
+# Set the PATH to include .NET
+ENV PATH="/usr/share/dotnet:${PATH}"
+
+# Set up the runner
 WORKDIR /runner
 
-RUN useradd runner && chown -R runner:runner /runner
+# Download and extract the runner
+RUN curl -o actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${GH_RUNNER_VERSION}/actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
+    && tar xzf actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
+    && rm actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz
+
+# Create non-root user
+RUN adduser -D -h /runner runner && chown -R runner:runner /runner
 
 USER runner
 
-RUN curl -o actions-runner-linux-x64-2.322.0.tar.gz -L https://github.com/actions/runner/releases/download/v${GH_RUNNER_VERSION}/actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz
+# Copy entrypoint script
+COPY docker/entrypoint.sh /runner/entrypoint.sh
 
-RUN tar xzf ./actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz && \
-    rm actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz
-
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/runner/entrypoint.sh"]
