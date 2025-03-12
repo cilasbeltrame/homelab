@@ -11,23 +11,18 @@ jobs:
   fetch-latest-minor-version:
     runs-on: self-hosted
     steps:
-      - name: Get latest tag from GitHub
+      - name: Checkout openhands-app repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           repository: All-Hands-AI/OpenHands
-      - name: Get latest tag
+      - name: Get latest minor tag
         id: latest-minor-tag
         run: |
           echo "::set-output name=latest_minor_tag::$(git tag --list | sort -V | tail -1 | cut -d. -f-2)"
-
-  deploy:
-    needs: fetch-latest-minor-version
-    runs-on: self-hosted
-    steps:
       - name: Deploy it into docker host
         run: |
           export APP_NAME=openhands-app
-          export LATEST_MINOR_TAG=${{ needs.fetch-latest-minor-version.outputs.latest_minor_tag }}
+          export LATEST_MINOR_TAG=${{ steps.latest-minor-tag.outputs.latest_minor_tag }}
           ./scripts/docker-deploy.sh
       
