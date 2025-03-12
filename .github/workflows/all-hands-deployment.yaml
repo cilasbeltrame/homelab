@@ -29,5 +29,5 @@ jobs:
         run: |
           export APP_NAME=openhands-app
           export LATEST_MINOR_TAG=${{ needs.fetch-latest-minor-version.outputs.latest_minor_tag }}
-          ./scripts/docker-deploy.sh
+          .github/workflows/scripts/docker-deploy.sh
       
