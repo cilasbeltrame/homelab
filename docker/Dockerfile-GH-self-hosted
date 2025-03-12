@@ -1,21 +1,21 @@
-FROM alpine:3.19
+FROM debian:bullseye-slim
 
 ENV GH_RUNNER_VERSION=2.322.0
 
 # Install dependencies
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     tar \
-    icu-libs \
-    krb5-libs \
-    libgcc \
-    libintl \
-    libssl3 \
-    libstdc++ \
-    zlib \
-    bash \
-    wget
+    wget \
+    libicu67 \
+    libkrb5-3 \
+    zlib1g \
+    libc6 \
+    libgcc1 \
+    libssl1.1 \
+    libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install .NET Runtime
 RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh \
@@ -36,7 +36,7 @@ RUN curl -o actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz -L https://gith
     && rm actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz
 
 # Create non-root user
-RUN adduser -D -h /runner runner && chown -R runner:runner /runner
+RUN useradd -m -d /runner runner && chown -R runner:runner /runner
 
 USER runner
 
