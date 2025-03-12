@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     libgcc1 \
     libssl1.1 \
     libstdc++6 \
+    openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install .NET Runtime
