@@ -2,7 +2,7 @@ name: All Hands Deployment
 
 on:
   schedule:
-    - cron: 0 16 * * *
+    - cron: 0 19 * * *
 
 jobs:
   fetch-latest-minor-version:
