@@ -1,6 +1,7 @@
 name: All Hands Deployment
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: 0 19 * * *
 
@@ -16,15 +17,15 @@ jobs:
       - name: Get latest tag
         id: latest-minor-tag
         run: |
-          echo "::set-output name=latest_minor_tag::$(git tag --list | sort -V | tail -1 | cut -d. -f-2)"
-
-  deploy:
-    needs: fetch-latest-minor-version
-    runs-on: self-hosted
-    steps:
+          export LATEST_MINOR_TAG=$(git tag --list | sort -V | tail -1 | cut -d. -f-2)
+          export APP_NAME=openhands-app
+      - name: Checkout homelab
+        uses: actions/checkout@v4
+        with:
+          repository: cilasbeltrame/homelab
+          path: homelab
       - name: Deploy it into docker host
         run: |
-          export APP_NAME=openhands-app
-          export LATEST_MINOR_TAG=${{ needs.fetch-latest-minor-version.outputs.latest_minor_tag }}
-          ./scripts/docker-deploy.sh
+          cd homelab
+          .github/workflows/scripts/docker-deploy.sh $APP_NAME $LATEST_MINOR_TAG
       

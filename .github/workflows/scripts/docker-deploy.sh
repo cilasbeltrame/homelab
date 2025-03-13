@@ -5,7 +5,7 @@ set -e
 APP_NAME=$1
 LATEST_MINOR_TAG=$2
 
-CURRENT_VERSION=$(docker ps | grep $APP_NAME | awk '{print $2}' | cut -d : -f2)
+CURRENT_VERSION=$(docker ps | grep "$APP_NAME" | awk '{print $2}' | cut -d : -f2)
 
 if [[ "$CURRENT_VERSION" == "$LATEST_MINOR_TAG" ]]; then
   echo "No new version to deploy"
@@ -16,8 +16,8 @@ fi
 
 docker_deploy() {
   echo "Deploying new version: $LATEST_MINOR_TAG"
-  docker stop $APP_NAME && docker rm $APP_NAME
-  docker rmi docker.all-hands.dev/all-hands-ai/openhands:$CURRENT_VERSION
+  docker stop "$APP_NAME" && docker rm "$APP_NAME"
+  docker rmi docker.all-hands.dev/all-hands-ai/openhands:"$CURRENT_VERSION"
   docker run -d \
     -e SANDBOX_RUNTIME_CONTAINER_IMAGE=docker.all-hands.dev/all-hands-ai/runtime:$LATEST_MINOR_TAG-nikolaik \
     -e LOG_ALL_EVENTS=true \
@@ -25,6 +25,6 @@ docker_deploy() {
     -v ~/.openhands-state:/.openhands-state \
     -p 3000:3000 \
     --add-host host.docker.internal:host-gateway \
-    --name $APP_NAME \
-    docker.all-hands.dev/all-hands-ai/openhands:$LATEST_MINOR_TAG
+    --name "$APP_NAME" \
+    docker.all-hands.dev/all-hands-ai/openhands:"$LATEST_MINOR_TAG"
 }
