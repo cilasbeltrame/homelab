@@ -1,9 +1,7 @@
 name: All Hands Deployment
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_dispatch:
   schedule:
     - cron: 0 19 * * *
 
