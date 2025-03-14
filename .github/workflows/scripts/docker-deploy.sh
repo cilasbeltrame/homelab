@@ -2,12 +2,11 @@
 
 set -ex
 
-hostname 
-which docker
 APP_NAME=$1
 LATEST_MINOR_TAG=$2
 
 ssh docker-host
+which docker
 hostname
 
 CURRENT_VERSION=$(docker ps | grep "$APP_NAME" | awk '{print $2}' | cut -d : -f2)
