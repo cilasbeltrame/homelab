@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -ex
 
 APP_NAME=$1
 LATEST_MINOR_TAG=$2
