@@ -5,7 +5,7 @@ set -e
 APP_NAME=$1
 LATEST_MINOR_TAG=$2
 
-ssh docker-host
+ssh -T docker-host "echo 'SSH connection successful' && docker --version"
 
 CURRENT_VERSION=$(docker ps | grep "$APP_NAME" | awk '{print $2}' | cut -d : -f2)
 
